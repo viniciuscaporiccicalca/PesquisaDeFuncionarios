@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisa de Funcionários</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <h1>Pesquisa de Funcionários</h1>
+
+    <div class="filter-container">
+        <div class="filter-item">
+            <label for="nameInput">Nome do Funcionário:</label>
+            <input type="text" id="nameInput" placeholder="Digite um nome...">
+        </div>
+        <div class="filter-item">
+            <label for="sectorSelect">Setor:</label>
+            <select id="sectorSelect">
+                <option value="">Todos</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <label for="unitSelect">UND (Unidade):</label>
+            <select id="unitSelect">
+                <option value="">Todas</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <button id="clearFiltersBtn">Limpar Filtros</button>
+        </div>
+    </div>
+
+    <div id="status"></div>
+
+    <table id="dataTable">
+        <thead>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
