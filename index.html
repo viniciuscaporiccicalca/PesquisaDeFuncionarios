@@ -3,8 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pesquisa de Funcionários</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Pesquisa de Funcionários Unimake</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 20px; background-color: #f4f7f6; color: #333; }
+        h1 { text-align: center; color: #2c3e50; }
+        .filter-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; margin-bottom: 15px; padding: 20px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .filter-item { display: flex; flex-direction: column; }
+        .filter-item label { margin-bottom: 5px; font-size: 14px; font-weight: 500; color: #555; }
+        .filter-item input, .filter-item select, .filter-item button { padding: 10px; font-size: 16px; border: 1px solid #ddd; border-radius: 4px; min-width: 220px; }
+        .filter-item button { background-color: #e74c3c; color: white; border: none; cursor: pointer; align-self: flex-end; }
+        #status { text-align: center; padding: 10px; margin: 10px 0; font-weight: bold; border-radius: 4px; }
+        .status-loading { background-color: #f0f8ff; color: #4682b4; }
+        .status-success { background-color: #f0fff0; color: #2e8b57; }
+        .status-error { background-color: #fff0f0; color: #dc143c; }
+        table { width: 100%; border-collapse: collapse; box-shadow: 0 2px 5px rgba(0,0,0,0.1); background-color: #ffffff; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        thead { background-color: #34495e; color: #ffffff; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+    </style>
 </head>
 <body>
 
@@ -17,15 +33,11 @@
         </div>
         <div class="filter-item">
             <label for="sectorSelect">Setor:</label>
-            <select id="sectorSelect">
-                <option value="">Todos</option>
-            </select>
+            <select id="sectorSelect"><option value="">Todos</option></select>
         </div>
         <div class="filter-item">
             <label for="unitSelect">UND (Unidade):</label>
-            <select id="unitSelect">
-                <option value="">Todas</option>
-            </select>
+            <select id="unitSelect"><option value="">Todas</option></select>
         </div>
         <div class="filter-item">
             <button id="clearFiltersBtn">Limpar Filtros</button>
@@ -35,13 +47,142 @@
     <div id="status"></div>
 
     <table id="dataTable">
-        <thead>
-        </thead>
-        <tbody>
-        </tbody>
+        <thead></thead>
+        <tbody></tbody>
     </table>
 
-    <script src="script.js"></script>
+    <script>
+        // --- INÍCIO DO CÓDIGO JAVASCRIPT ---
 
+        // CORREÇÃO: Usando o link correto para buscar os dados em formato CSV.
+        const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRoBQPnk__29xiiH3zCqePoPLSE7aBDSiAJMoRz6BPG6IKpiDuUwrLWRALRRrw4WoyG3r8l5Xgd4Fjc/pub?output=csv';
+        
+        const columnsToShow = ['Nome(Funcionários)', 'Setor', 'UND', 'Data Nasc.', 'Data ADM.', 'Mês Nasc.', 'Mês ADM.', 'Idade', 'Tempo de Unimake'];
+        const columnHeaders = { 'Nome(Funcionários)': 'Nome', 'Setor': 'Setor', 'UND': 'UND (Unidade)', 'Data Nasc.': 'Data Nasc.', 'Data ADM.': 'Data ADM.', 'Mês Nasc.': 'Mês Nasc.', 'Mês ADM.': 'Mês ADM.', 'Idade': 'Idade', 'Tempo de Unimake': 'Tempo de Unimake' };
+        const fixedSectors = ['ISM', 'MKT', 'ADM', 'CRM', 'DEV', 'STI', 'WEB'];
+        const fixedUnits = ['PV', 'CM'];
+
+        let tableData = [];
+        const statusDiv = document.getElementById('status');
+
+        function showStatus(message, type = 'loading') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status-${type}`;
+        }
+
+        async function fetchData() {
+            showStatus("Carregando dados da planilha...", "loading");
+            try {
+                const response = await fetch(sheetURL);
+                if (!response.ok) throw new Error(`Erro de Rede: ${response.statusText}`);
+                
+                const csvText = await response.text();
+                if (!csvText) throw new Error("A planilha retornou dados vazios.");
+
+                tableData = parseCSV(csvText);
+
+                if (tableData.length > 0) {
+                    showStatus(`${tableData.length} registros carregados com sucesso.`, "success");
+                    filterTable();
+                } else {
+                    showStatus("Nenhum registro encontrado na planilha.", "error");
+                }
+            } catch (error) {
+                showStatus(`ERRO: ${error.message}. Verifique o link e se a planilha está publicada.`, "error");
+                console.error("Falha ao buscar dados:", error);
+            }
+        }
+
+        function parseCSV(text) {
+            const lines = text.trim().split(/\r?\n/);
+            const headers = lines.shift().split(',');
+            
+            return lines.map(line => {
+                const values = line.split(',');
+                return headers.reduce((obj, header, index) => {
+                    obj[header] = values[index];
+                    return obj;
+                }, {});
+            });
+        }
+
+        function populateTable(data) {
+            const tableHead = document.querySelector('#dataTable thead');
+            const tableBody = document.querySelector('#dataTable tbody');
+            tableHead.innerHTML = '';
+            tableBody.innerHTML = '';
+
+            const headerRow = document.createElement('tr');
+            columnsToShow.forEach(key => {
+                const th = document.createElement('th');
+                th.textContent = columnHeaders[key] || key;
+                headerRow.appendChild(th);
+            });
+            tableHead.appendChild(headerRow);
+
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = columnsToShow.length;
+                cell.textContent = "Nenhum resultado encontrado para os filtros aplicados.";
+                cell.style.textAlign = "center";
+                row.appendChild(cell);
+                tableBody.appendChild(row);
+            } else {
+                data.forEach(rowData => {
+                    const row = document.createElement('tr');
+                    columnsToShow.forEach(key => {
+                        const td = document.createElement('td');
+                        td.textContent = rowData[key] !== undefined ? rowData[key] : '';
+                        row.appendChild(td);
+                    });
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+
+        function filterTable() {
+            const nameFilter = document.getElementById('nameInput').value.toLowerCase();
+            const sectorFilter = document.getElementById('sectorSelect').value;
+            const unitFilter = document.getElementById('unitSelect').value;
+
+            const filteredData = tableData.filter(row => {
+                const nameMatch = row['Nome(Funcionários)'] ? row['Nome(Funcionários)'].toLowerCase().includes(nameFilter) : true;
+                const sectorMatch = sectorFilter ? row['Setor'] === sectorFilter : true;
+                const unitMatch = unitFilter ? row['UND'] === unitFilter : true;
+                return nameMatch && sectorMatch && unitMatch;
+            });
+            populateTable(filteredData);
+        }
+
+        function populateFixedFilterOptions() {
+            const sectorSelect = document.getElementById('sectorSelect');
+            const unitSelect = document.getElementById('unitSelect');
+            fixedSectors.forEach(sector => sectorSelect.add(new Option(sector, sector)));
+            fixedUnits.forEach(unit => unitSelect.add(new Option(unit, unit)));
+        }
+
+        function clearFilters() {
+            document.getElementById('nameInput').value = '';
+            document.getElementById('sectorSelect').value = '';
+            document.getElementById('unitSelect').value = '';
+            filterTable();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            populateFixedFilterOptions();
+            fetchData();
+            
+            document.getElementById('nameInput').addEventListener('input', filterTable);
+            document.getElementById('sectorSelect').addEventListener('change', filterTable);
+            document.getElementById('unitSelect').addEventListener('change', filterTable);
+            document.getElementById('clearFiltersBtn').addEventListener('click', clearFilters);
+
+            // Sincroniza os dados a cada 5 minutos
+            setInterval(fetchData, 300000); 
+        });
+
+        // --- FIM DO CÓDIGO JAVASCRIPT ---
+    </script>
 </body>
 </html>
