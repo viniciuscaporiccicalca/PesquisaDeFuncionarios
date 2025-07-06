@@ -3,64 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aniversariantes Unimake</title>
+    <title>Gestão de Funcionários</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <h1>Aniversariantes e Funcionários</h1>
-    </header>
+    <div class="container">
+        <h1>Painel de Gestão de Funcionários</h1>
 
-    <main>
-        <div class="filters-container">
-            <div class="filter-group">
-                <label for="und-filter">Unidade (UND):</label>
-                <select id="und-filter">
-                    <option value="">Todas</option>
-                    <option value="CM">CM</option>
-                    <option value="PV">PV</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label for="setor-filter">Setor:</label>
-                <select id="setor-filter">
-                    <option value="">Todos</option>
-                    <option value="ISM">ISM</option>
-                    <option value="CRM">CRM</option>
-                    <option value="ADM">ADM</option>
-                    <option value="DEV">DEV</option>
-                    <option value="UNI">UNI</option>
-                    <option value="MKT">MKT</option>
-                    <option value="STI">STI</option>
-                    <option value="WEB">WEB</option>
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label for="nome-filter">Nome do Funcionário:</label>
-                <input type="text" id="nome-filter" placeholder="Digite um nome para buscar...">
-            </div>
+        <div class="form-container">
+            <h2>Cadastrar Novo Funcionário</h2>
+            <form id="cadastro-form">
+                <div class="form-grid">
+                    <input type="text" id="nome" placeholder="Nome do Funcionário" required>
+                    <input type="text" id="setor" placeholder="Setor" required>
+                    <input type="text" id="und" placeholder="Unidade (ex: PV, CM, TO)" required>
+                    <label for="data-nasc">Data de Nascimento:</label>
+                    <input type="date" id="data-nasc" required>
+                    <label for="data-adm">Data de Admissão:</label>
+                    <input type="date" id="data-adm" required>
+                </div>
+                <button type="submit">Cadastrar</button>
+            </form>
         </div>
 
-        <div class="table-container">
-            <table id="data-table">
-                <thead>
-                    </thead>
-                <tbody>
-                    <tr>
-                        <td colspan="100%" class="loading-message">Carregando dados da planilha...</td>
-                    </tr>
+        <div class="search-container">
+            <h2>Buscar Funcionários</h2>
+            <input type="text" id="search-input" placeholder="Digite para buscar por nome, setor, unidade...">
+        </div>
+
+        <table id="funcionarios-table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Setor</th>
+                    <th>Unidade</th>
+                    <th>Idade</th>
+                    <th>Mês Nasc.</th>
+                    <th>Data Nasc.</th>
+                    <th>Tempo de Empresa</th>
+                    <th>Mês Adm.</th>
+                    <th>Data Adm.</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
                 </tbody>
-            </table>
-        </div>
-    </main>
+        </table>
 
-    <footer>
-        <p>Desenvolvido pela Gemini</p>
-    </footer>
+    </div>
 
-    <script src="script.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
