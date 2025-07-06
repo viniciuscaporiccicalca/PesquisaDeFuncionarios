@@ -41,7 +41,7 @@ input[type="text"], input[type="date"] {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    box-sizing: border-box; /* Importante para o padding não afetar a largura total */
+    box-sizing: border-box;
 }
 
 label {
@@ -85,6 +85,7 @@ button:hover {
     border: 1px solid #ddd;
     padding: 12px;
     text-align: left;
+    vertical-align: middle; /* Alinha o conteúdo verticalmente */
 }
 
 #funcionarios-table th {
@@ -99,4 +100,32 @@ button:hover {
 
 #funcionarios-table tbody tr:hover {
     background-color: #e2e2e2;
+}
+
+/* ESTILOS ADICIONADOS */
+
+.actions-cell {
+    display: flex;
+    gap: 5px; /* Espaçamento entre os botões */
+}
+
+.action-btn {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    font-size: 12px;
+}
+
+.edit-btn { background-color: #ffc107; } /* Amarelo */
+.delete-btn { background-color: #dc3545; } /* Vermelho */
+.save-btn { background-color: #28a745; } /* Verde */
+.cancel-btn { background-color: #6c757d; } /* Cinza */
+
+.edit-input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #0056b3;
+    border-radius: 4px;
 }
